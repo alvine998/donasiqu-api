@@ -1,5 +1,6 @@
 const db = require('../models')
 const news = db.news
+const categories = db.categories
 const Op = db.Sequelize.Op
 require('dotenv').config()
 
@@ -31,7 +32,7 @@ exports.list = async (req, res) => {
                 },
             },
             order: [
-                ['createdAt', 'DESC'],
+                req.query.popular == '1' ? ['viewers', 'DESC'] : ['createdAt', 'DESC'],
             ],
             attributes: { exclude: ['deletedAt'] },
             ...req.query.pagination == 'true' && {
@@ -56,17 +57,32 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        ['title', 'slug', 'category_id', 'category_name', 'headline', 'author', 'editor', 'content', 'published_at', 'breaking_news', 'status']?.map(value => {
-            if (!req.body[value]) {
-                return res.status(400).send({
-                    status: "error",
-                    error_message: "Parameter tidak lengkap " + value,
-                    code: 400
-                })
+        // const requiredFields = ['title', 'slug', 'category_id', 'headline', 'author', 'editor', 'content', 'published_at', 'breaking_news', 'status'];
+        // console.log(req.body,'obdy');
+        // for (const field of requiredFields) {
+        //     if (!req.body[field]) {
+        //         return res.status(400).send({
+        //             status: "error",
+        //             error_message: "Parameter tidak lengkap: " + field,
+        //             code: 400
+        //         });
+        //     }
+        // }
+
+
+        const category = await categories.findOne({
+            where: {
+                deletedAt: { [Op.is]: null },
+                id: { [Op.eq]: req.body.category_id },
             }
         })
+        if (!category) {
+            return res.status(400).send({ message: "Data tidak ditemukan!" })
+        }
+
         const payload = {
             ...req.body,
+            category_name: category?.name
         };
         const result = await news.create(payload)
         return res.status(200).send({
@@ -92,10 +108,25 @@ exports.update = async (req, res) => {
         if (!result) {
             return res.status(400).send({ message: "Data tidak ditemukan!" })
         }
+
+        let category = null;
+        if (req.body.category_id) {
+            const category = await categories.findOne({
+                where: {
+                    deletedAt: { [Op.is]: null },
+                    id: { [Op.eq]: req.body.category_id },
+                }
+            })
+            if (!category) {
+                return res.status(400).send({ message: "Data tidak ditemukan!" })
+            }
+        }
+
         let payload = {}
         payload = {
             ...req.body,
-            updated_at: new Date()
+            updated_at: new Date(),
+            ...req.body.category_id && { category_name: category?.name }
         }
         const onUpdate = await news.update(payload, {
             where: {

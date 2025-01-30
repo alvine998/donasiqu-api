@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     description: {
-      type: DataTypes.STRING(300),
+      type: DataTypes.TEXT,
       allowNull: false
     },
     thumbnail: {
@@ -43,9 +43,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(250),
       allowNull: false
     },
+    source: {
+      type: DataTypes.STRING(250),
+      allowNull: false
+    },
     keywords: {
       type: DataTypes.JSON,
       allowNull: false
+    },
+    viewers: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     headline: {
       type: DataTypes.TINYINT,
@@ -56,7 +65,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('draft','published'),
+      type: DataTypes.ENUM('draft','publish'),
       allowNull: false
     },
     published_at: {

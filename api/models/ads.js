@@ -16,11 +16,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     width: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false
     },
     height: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false
     },
     type: {

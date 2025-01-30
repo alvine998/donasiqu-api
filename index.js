@@ -1,8 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-
+const AWS = require('aws-sdk');
+const multer = require('multer');
 const app = express();
+const fs = require('fs');
+const bodyParser = require("body-parser");
 require('dotenv').config();
 
 var corsOptions = {
@@ -22,6 +25,10 @@ db.sequelize.sync()
 
 // parse requests of content-type - application/json
 app.use(express.json());
+// Increase the payload limit
+app.use(bodyParser.json({ limit: "50mb" }));  // Increase JSON limit
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));  // Increase URL-encoded limit
+
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
@@ -31,8 +38,37 @@ app.use(function (req, res, next) {
     next();
 });
 
+// Configure AWS SDK with Cloudflare R2 credentials
+const s3 = new AWS.S3({
+    endpoint: process.env.R2_ENDPOINT, // Cloudflare R2 endpoint
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    region: process.env.R2_REGION, // Set region to 'auto'
+});
+
+// Create a folder for uploads if it doesn't exist
+const uploadFolder = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadFolder)) {
+    fs.mkdirSync(uploadFolder);
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadFolder); // Save files in the "uploads" folder
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}-${file.originalname}`;
+        cb(null, uniqueName); // Save with a unique name
+    },
+    limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+});
+
+const upload = multer({ storage });
+
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
+
 
 // simple route
 app.get("/", (req, res) => {
@@ -40,7 +76,61 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome to API Marketplace" });
 });
 
-app.use(express.static(path.join("upload")))
+// Upload file API
+// app.post('/upload', upload.single('file'), async (req, res) => {
+//     try {
+//         if (!req.file) {
+//             return res.status(400).json({ message: 'No file uploaded' });
+//         }
+
+//         const fileKey = `${Date.now()}_${req.file.originalname}`;
+//         const baseUrl = 'https://pub-8f3c916120434b039d8324b79f0f70ad.r2.dev';
+//         const filePath = req.file.originalname;
+//         const fileUrl = `${baseUrl}/${filePath}`;
+
+//         const params = {
+//             Bucket: process.env.R2_BUCKET_NAME,
+//             Key: fileKey,
+//             Body: req.file.buffer, // File content
+//             ContentType: req.file.mimetype, // File MIME type
+//             ACL: 'public-read', // Make file publicly readable (optional)
+//         };
+
+//         // Upload to R2
+//         const data = await s3.upload(params).promise();
+
+//         res.status(200).json({
+//             message: 'File uploaded successfully',
+//             fileUrl: data.Location, // URL of the uploaded file
+//             uri: fileUrl
+//         });
+//     } catch (error) {
+//         console.error('Error uploading file:', error);
+//         res.status(500).json({ message: 'Error uploading file', error });
+//     }
+// });
+
+// API to handle image upload
+app.post("/upload", upload.single("image"), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        res.status(200).json({
+            message: "File uploaded successfully",
+            filePath: `/uploads/${req.file.filename}`,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+
+// Serve uploaded files statically
+app.use("/uploads", express.static(uploadFolder));
+
+
+// app.use(express.static(path.join("upload/?/")))
 
 require('./api/routes')(app);
 
