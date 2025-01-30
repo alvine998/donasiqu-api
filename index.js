@@ -8,6 +8,9 @@ const fs = require('fs');
 const bodyParser = require("body-parser");
 require('dotenv').config();
 
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
 var corsOptions = {
     origin: '*'
 };
@@ -38,12 +41,21 @@ app.use(function (req, res, next) {
     next();
 });
 
-// Configure AWS SDK with Cloudflare R2 credentials
-const s3 = new AWS.S3({
-    endpoint: process.env.R2_ENDPOINT, // Cloudflare R2 endpoint
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-    region: process.env.R2_REGION, // Set region to 'auto'
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure Multer to use Cloudinary
+const storage2 = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "uploads", // Folder in Cloudinary
+        format: async () => "jpg", // Convert to JPG
+        public_id: (req, file) => file.originalname.split(".")[0]
+    }
 });
 
 // Create a folder for uploads if it doesn't exist
@@ -65,6 +77,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+const upload2 = multer({ storage: storage2 });
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -119,6 +132,21 @@ app.post("/upload", upload.single("image"), (req, res) => {
         res.status(200).json({
             message: "File uploaded successfully",
             filePath: `/uploads/${req.file.filename}`,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+
+app.post("/upload/v2", upload2.single("image"), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        res.status(200).json({
+            message: "File uploaded successfully",
+            filePath: req.file.path,
         });
     } catch (error) {
         console.log(error);
