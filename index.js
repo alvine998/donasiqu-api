@@ -157,7 +157,7 @@ app.post("/upload/v2", upload2.single("image"), (req, res) => {
     }
 });
 
-app.post("/upload/video", upload2.single("video"), async (req, res) => {
+app.post("/upload/video", uploadVideo.single("video"), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
