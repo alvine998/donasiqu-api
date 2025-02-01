@@ -179,7 +179,7 @@ app.post("/upload/video", uploadVideo.single("video"), async (req, res) => {
         res.status(200).json({
             message: "File uploaded successfully",
             filePath: req.file.path,
-            videoUrl: req.file.stream.pipe(result)
+            // videoUrl: req.file.stream.pipe(result)
         });
     } catch (error) {
         console.log(error);
