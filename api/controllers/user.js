@@ -100,8 +100,7 @@ exports.update = async (req, res) => {
         if (!result) {
             return res.status(400).send({ message: "Data tidak ditemukan!" })
         }
-        let payload = {}
-        payload = {
+        let payload = {
             ...req.body,
             updatedAt: new Date()
         }
