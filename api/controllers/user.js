@@ -14,7 +14,7 @@ exports.list = async (req, res) => {
 
         const result = await users.findAndCountAll({
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 ...req.query.id && { id: { [Op.eq]: req.query.id } },
                 ...req.query.status && { status: { [Op.in]: req.query.status.split(",") } },
                 ...req.query.google_id && { google_id: { [Op.eq]: req.query.google_id } },
@@ -27,9 +27,9 @@ exports.list = async (req, res) => {
                 },
             },
             order: [
-                ['created_at', 'DESC'],
+                ['createdAt', 'DESC'],
             ],
-            attributes: { exclude: ['deleted_at', 'password'] },
+            attributes: { exclude: ['deletedAt', 'password'] },
             ...req.query.pagination == 'true' && {
                 limit: size,
                 offset: offset
@@ -62,7 +62,7 @@ exports.create = async (req, res) => {
         })
         const existUser = await users.findOne({
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 email: { [Op.eq]: req.body.email }
             }
         })
@@ -91,7 +91,7 @@ exports.update = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 id: { [Op.eq]: req.body.id },
                 email: { [Op.eq]: req.body.email }
             }
@@ -106,7 +106,7 @@ exports.update = async (req, res) => {
         }
         const onUpdate = await users.update(payload, {
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 id: { [Op.eq]: req.body.id }
             }
         })
@@ -122,7 +122,7 @@ exports.delete = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 id: { [Op.eq]: req.query.id }
             }
         })
@@ -174,7 +174,7 @@ exports.login = async (req, res) => {
                     email: req.body.identity
                 },
             },
-            attributes: { exclude: ['deleted', 'password'] },
+            attributes: { exclude: ['deletedAt', 'password'] },
         })
         return res.status(200).send({ message: "Berhasil Login", user: result2 })
     } catch (error) {
@@ -204,7 +204,7 @@ exports.loginbygoogle = async (req, res) => {
         };
         const existEmail = await users.findOne({
             where: {
-                deleted_at: { [Op.not]: null },
+                deletedAt: { [Op.is]: null },
                 status: { [Op.eq]: 1 },
                 email: { [Op.eq]: email }
             },
@@ -212,7 +212,7 @@ exports.loginbygoogle = async (req, res) => {
         if (existEmail) {
             await users.update({ google_id: uid }, {
                 where: {
-                    deleted_at: { [Op.not]: null },
+                    deletedAt: { [Op.is]: null },
                     id: { [Op.eq]: existEmail.id }
                 }
             })
@@ -232,7 +232,7 @@ exports.verificationResetPassword = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deleted: { [Op.eq]: 0 },
+                deletedAt: { [Op.is]: null },
                 id: { [Op.eq]: req.body.id },
                 email: { [Op.eq]: req.body.email },
                 reset_otp: { [Op.eq]: req.body.otp },
@@ -245,7 +245,7 @@ exports.verificationResetPassword = async (req, res) => {
             reset_otp: null
         }, {
             where: {
-                deleted: { [Op.eq]: 0 },
+                deletedAt: { [Op.is]: null },
                 id: { [Op.eq]: req.body.id }
             }
         })
