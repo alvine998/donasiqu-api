@@ -58,8 +58,15 @@ const storage2 = new CloudinaryStorage({
     }
 });
 
-const storageVideo = multer.memoryStorage();
-
+// Create the storage engine for Cloudinary
+const storageVideo = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'uploads/videos', // Folder in Cloudinary
+        resource_type: 'video', // Specify resource type as video
+        public_id: (req, file) => `video_${Date.now()}`, // Unique public ID
+    },
+});
 // Create a folder for uploads if it doesn't exist
 const uploadFolder = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadFolder)) {
@@ -162,24 +169,9 @@ app.post("/upload/video", uploadVideo.single("video"), async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
-        // Upload video to Cloudinary
-        const result = await cloudinary.uploader.upload_stream(
-            {
-                resource_type: 'video', // specify that the upload is a video
-                public_id: `videos/${Date.now()}`, // optional, to set a custom name for the video
-            },
-            (error, result) => {
-                if (error) {
-                    return res.status(500).json({ error: error.message });
-                }
-                return res.json({ message: 'Video uploaded successfully', url: result.secure_url });
-            }
-        );
-        req.file.stream.pipe(result);
         res.status(200).json({
             message: "File uploaded successfully",
             filePath: req.file.path,
-            // videoUrl: req.file.stream.pipe(result)
         });
     } catch (error) {
         console.log(error);
