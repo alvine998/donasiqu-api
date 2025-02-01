@@ -52,7 +52,7 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        ['name', 'status']?.map(value => {
+        ['name', 'email']?.map(value => {
             if (!req.body[value]) {
                 return res.status(400).send({
                     status: "error",
@@ -70,8 +70,8 @@ exports.create = async (req, res) => {
         if (existUser) {
             return res.status(400).send({ message: "Email Telah Terdaftar!" })
         }
-        const salt = await bcrypt.genSalt(10)
-        const password = await bcrypt.hash(req.body.password, salt)
+        // const salt = await bcrypt.genSalt(10)
+        // const password = await bcrypt.hash(req.body.password, salt)
         const payload = {
             ...req.body,
         };
@@ -103,7 +103,7 @@ exports.update = async (req, res) => {
         let payload = {}
         payload = {
             ...req.body,
-            updated_at: new Date()
+            updatedAt: new Date()
         }
         const onUpdate = await users.update(payload, {
             where: {
