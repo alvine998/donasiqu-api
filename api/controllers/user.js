@@ -18,6 +18,7 @@ exports.list = async (req, res) => {
                 ...req.query.id && { id: { [Op.eq]: req.query.id } },
                 ...req.query.status && { status: { [Op.in]: req.query.status.split(",") } },
                 ...req.query.google_id && { google_id: { [Op.eq]: req.query.google_id } },
+                ...req.query.email && { email: { [Op.eq]: req.query.email } },
                 ...req.query.search && {
                     [Op.or]: [
                         { name: { [Op.like]: `%${req.query.search}%` } },
