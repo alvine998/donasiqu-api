@@ -58,6 +58,8 @@ const storage2 = new CloudinaryStorage({
     }
 });
 
+const storageVideo = multer.memoryStorage();
+
 // Create a folder for uploads if it doesn't exist
 const uploadFolder = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadFolder)) {
@@ -78,6 +80,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 const upload2 = multer({ storage: storage2 });
+const uploadVideo = multer({ storage: storageVideo });
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -147,6 +150,36 @@ app.post("/upload/v2", upload2.single("image"), (req, res) => {
         res.status(200).json({
             message: "File uploaded successfully",
             filePath: req.file.path,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+
+app.post("/upload/video", upload2.single("video"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        // Upload video to Cloudinary
+        const result = await cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'video', // specify that the upload is a video
+                public_id: `videos/${Date.now()}`, // optional, to set a custom name for the video
+            },
+            (error, result) => {
+                if (error) {
+                    return res.status(500).json({ error: error.message });
+                }
+                return res.json({ message: 'Video uploaded successfully', url: result.secure_url });
+            }
+        );
+        req.file.stream.pipe(result);
+        res.status(200).json({
+            message: "File uploaded successfully",
+            filePath: req.file.path,
+            videoUrl: req.file.stream.pipe(result)
         });
     } catch (error) {
         console.log(error);
