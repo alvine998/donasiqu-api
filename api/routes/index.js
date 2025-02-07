@@ -5,6 +5,7 @@ module.exports = (app) => {
     const cCategories = require('../controllers/category.js');
     const cAds = require('../controllers/ads.js');
     const cNews = require('../controllers/news.js');
+    const cKurs = require('../controllers/kurs.js');
 
     app.get('/users', middlewareHere, cUser.list);
     app.post('/users', middlewareHere, cUser.create);
@@ -26,4 +27,9 @@ module.exports = (app) => {
     app.post('/news', middlewareHere, cNews.create);
     app.patch('/news', middlewareHere, cNews.update);
     app.delete('/news', middlewareHere, cNews.delete);
+
+    app.get('/kurs', middlewareHere, cKurs.list);
+    app.post('/kurs', middlewareHere, cKurs.create);
+    app.patch('/kurs', middlewareHere, cKurs.update);
+    app.delete('/kurs', middlewareHere, cKurs.delete);
 }

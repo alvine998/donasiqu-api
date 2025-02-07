@@ -1,36 +1,47 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('ads', {
+  return sequelize.define('kurs', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    title: {
-      type: DataTypes.STRING(250),
+    date: {
+      type: DataTypes.DATEONLY,
       allowNull: false
     },
-    image: {
-      type: DataTypes.TEXT,
+    idr: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    width: {
-      type: DataTypes.BIGINT,
+    eur: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    height: {
-      type: DataTypes.BIGINT,
+    jpy: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    type: {
-      type: DataTypes.ENUM('header','side','video'),
-      allowNull: false,
-      defaultValue: "header"
+    cny: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
+    aud: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
+    krw: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
+    myr: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'ads',
+    tableName: 'kurs',
     timestamps: true,
     paranoid: true,
     indexes: [
@@ -40,14 +51,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "idx_deleted_at_name",
-        using: "BTREE",
-        fields: [
-          { name: "deletedAt" },
-          { name: "title" },
         ]
       },
     ]

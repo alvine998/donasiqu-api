@@ -16,8 +16,7 @@
     "functions": {
     "api/*": {
       "maxDuration": 60,
-      "memory": 1024,
-      "maxRequestBodySize": 500000000
+      "memory": 1024
     }
   }
 }
