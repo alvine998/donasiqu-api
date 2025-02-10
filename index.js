@@ -52,7 +52,7 @@ cloudinary.config({
 const storage2 = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: "uploads", // Folder in Cloudinary
+        folder: "uploads/donasiqu/images", // Folder in Cloudinary
         format: async () => "jpg", // Convert to JPG
         public_id: (req, file) => file.originalname.split(".")[0]
     }
@@ -62,7 +62,7 @@ const storage2 = new CloudinaryStorage({
 const storageVideo = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'uploads/videos', // Folder in Cloudinary
+        folder: 'uploads/donasiqu/videos', // Folder in Cloudinary
         resource_type: 'video', // Specify resource type as video
         public_id: (req, file) => `video_${Date.now()}`, // Unique public ID
     },

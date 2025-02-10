@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "asbi_api",
+    "name": "donasiqu_api",
     "builds": [
         {
             "src": "index.js",
