@@ -95,8 +95,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // simple route
 app.get("/", (req, res) => {
-    console.log(path.join(__dirname, "upload/images"));
-    res.json({ message: "Welcome to API Marketplace" });
+    res.json({ message: "Welcome to API Donasiqu" });
 });
 
 // Upload file API

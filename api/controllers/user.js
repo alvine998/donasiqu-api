@@ -75,10 +75,38 @@ exports.create = async (req, res) => {
         if (existUser) {
             return res.status(400).send({ message: "Email Telah Terdaftar!" })
         }
+        let userCode = null;
+        const lastRecordDonor = await users.findOne({
+            where: {
+                deleted: { [Op.eq]: 0 },
+                role: { [Op.eq]: "donor" }
+            },
+            order: [['id', 'DESC']] // Assuming 'id' is an auto-incrementing primary key
+        });
+
+        const lastRecordFoundation = await users.findOne({
+            where: {
+                deleted: { [Op.eq]: 0 },
+                role: { [Op.eq]: "foundation" }
+            },
+            order: [['id', 'DESC']] // Assuming 'id' is an auto-incrementing primary key
+        });
+
+        if (lastRecordDonor) {
+            userCode = lastRecordDonor.code.includes("donor-") ? `donor-${+lastRecordDonor.code.split("-")[1] + 1}` : 'donor-001'
+        }
+        if (lastRecordFoundation) {
+            userCode = lastRecordDonor.code.includes("foundation-") ? `foundation-${+lastRecordDonor.code.split("-")[1] + 1}` : 'foundation-001'
+        }
+        const salt = await bcrypt.genSalt(10)
+        const password = await bcrypt.hash(req.body.password, salt)
         // const salt = await bcrypt.genSalt(10)
         // const password = await bcrypt.hash(req.body.password, salt)
         const payload = {
             ...req.body,
+            password: password,
+            code: userCode || (req.body.role == 'donor' ? 'donor-001' : req.body.role == 'foundation' ? 'foundation-001' : 'admin'),
+            verified: 0
         };
         const result = await users.create(payload)
         return res.status(200).send({
@@ -157,6 +185,7 @@ exports.login = async (req, res) => {
             where: {
                 deleted: { [Op.eq]: 0 },
                 status: { [Op.eq]: 1 },
+                verified: {[Op.eq]: 1},
                 [Op.or]: {
                     phone: req.body.identity,
                     email: req.body.identity

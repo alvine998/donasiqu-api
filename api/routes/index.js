@@ -8,6 +8,7 @@ module.exports = (app) => {
     app.post('/users', middlewareHere, cUser.create);
     app.patch('/users', middlewareHere, cUser.update);
     app.delete('/users', middlewareHere, cUser.delete);
+    app.post('/users/login', middlewareHere, cUser.login);
     app.post('/users/login/goole', middlewareHere, cUser.loginbygoogle);
 
     app.get('/banners', middlewareHere, cBanner.list);
