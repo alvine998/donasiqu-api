@@ -23,6 +23,19 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: true
     },
+    pob: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    dob: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    agreement: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0
+    },
     password: {
       type: DataTypes.STRING(250),
       allowNull: false

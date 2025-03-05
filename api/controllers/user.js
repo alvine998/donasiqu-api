@@ -56,7 +56,7 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const requiredFields = ['name', 'password', 'role'];
+        const requiredFields = ['name', 'password', 'role', 'pob', 'dob'];
         for (const value of requiredFields) {
             if (!req.body[value]) {
                 return res.status(400).send({
