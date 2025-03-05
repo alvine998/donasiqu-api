@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  express-app:
+    container_name: donasiqu-api
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+networks:
+  web:
+    external: true
