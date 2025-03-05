@@ -1,20 +1,20 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+# Use a lightweight Bun image
+FROM oven/bun:latest
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy package files first to leverage Docker cache
+COPY bun.lockb package.json ./
 
 # Install dependencies
 RUN bun install
 
-# Copy the rest of the application
+# Copy the rest of the project files
 COPY . .
 
-# Expose port 3000 to the outside
+# Expose port (adjust based on your app)
 EXPOSE 5001
 
-# Define the command to run the app
-CMD ["node", "index.js"]
+# Start the application
+CMD ["bun", "run", "dev"]
