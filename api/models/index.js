@@ -21,9 +21,6 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.users = require("./users.js")(sequelize, Sequelize);
-db.categories = require("./categories.js")(sequelize, Sequelize);
-db.news = require("./news.js")(sequelize, Sequelize);
-db.ads = require("./ads.js")(sequelize, Sequelize);
-db.kurs = require("./kurs.js")(sequelize, Sequelize);
+db.banners = require("./banners.js")(sequelize, Sequelize);
 
 module.exports = db;

@@ -12,6 +12,7 @@ exports.list = async (req, res) => {
 
         const result = await categories.findAndCountAll({
             where: {
+                deleted: { [Op.eq]: 0 },
                 ...req.query.id && { id: { [Op.eq]: req.query.id } },
                 ...req.query.search && {
                     [Op.or]: [
@@ -20,9 +21,9 @@ exports.list = async (req, res) => {
                 },
             },
             order: [
-                ['createdAt', 'DESC'],
+                ['created_on', 'DESC'],
             ],
-            attributes: { exclude: ['deletedAt'] },
+            attributes: { exclude: ['deleted'] },
             ...req.query.pagination == 'true' && {
                 limit: size,
                 offset: offset
@@ -45,15 +46,16 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        ['name']?.map(value => {
+        const requiredFields = ['name', 'image'];
+        for (const value of requiredFields) {
             if (!req.body[value]) {
                 return res.status(400).send({
                     status: "error",
                     error_message: "Parameter tidak lengkap " + value,
                     code: 400
-                })
+                });
             }
-        })
+        }
         const payload = {
             ...req.body,
         };
@@ -74,7 +76,7 @@ exports.update = async (req, res) => {
     try {
         const result = await categories.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id },
             }
         })
@@ -88,7 +90,7 @@ exports.update = async (req, res) => {
         }
         const onUpdate = await categories.update(payload, {
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id }
             }
         })
@@ -104,16 +106,16 @@ exports.delete = async (req, res) => {
     try {
         const result = await categories.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
             }
         })
         if (!result) {
             return res.status(404).send({ message: "Data tidak ditemukan!" })
         }
-        await categories.update({ deletedAt: new Date() }, {
+        await categories.update({ deleted: 1 }, {
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
             }
         })

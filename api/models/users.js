@@ -7,28 +7,71 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    name: {
-      type: DataTypes.STRING(250),
+    code: {
+      type: DataTypes.STRING(100),
       allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    phone: {
+      type: DataTypes.STRING(13),
+      allowNull: true
     },
     email: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    password: {
       type: DataTypes.STRING(250),
       allowNull: false
     },
-    google_id: {
-      type: DataTypes.TEXT,
+    verified: {
+      type: DataTypes.TINYINT,
+      allowNull: true
+    },
+    is_reset: {
+      type: DataTypes.TINYINT,
+      allowNull: true
+    },
+    verify_token: {
+      type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    role: {
+      type: DataTypes.ENUM('super_admin','admin','foundation','donor'),
+      allowNull: false,
+      defaultValue: "donor"
+    },
+    otp: {
+      type: DataTypes.STRING(6),
       allowNull: true
     },
     status: {
       type: DataTypes.TINYINT,
       allowNull: false,
       defaultValue: 1
+    },
+    created_on: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    updated_on: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    deleted: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0,
+      unique: "deleted"
     }
   }, {
     sequelize,
     tableName: 'users',
-    timestamps: true,
-    paranoid: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -39,11 +82,11 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "idx_deleted_at_name",
+        name: "deleted",
+        unique: true,
         using: "BTREE",
         fields: [
-          { name: "deletedAt" },
-          { name: "name" },
+          { name: "deleted" },
         ]
       },
     ]

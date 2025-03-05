@@ -1,13 +1,13 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('ads', {
+  return sequelize.define('banners', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    title: {
+    name: {
       type: DataTypes.STRING(250),
       allowNull: false
     },
@@ -15,24 +15,28 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    width: {
-      type: DataTypes.BIGINT,
-      allowNull: false
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
     },
-    height: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
-    type: {
-      type: DataTypes.ENUM('header','side','video'),
+    created_on: {
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: "header"
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    updated_on: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    deleted: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
-    tableName: 'ads',
-    timestamps: true,
-    paranoid: true,
+    tableName: 'banners',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -43,11 +47,10 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "idx_deleted_at_name",
+        name: "deleted",
         using: "BTREE",
         fields: [
-          { name: "deletedAt" },
-          { name: "title" },
+          { name: "deleted" },
         ]
       },
     ]

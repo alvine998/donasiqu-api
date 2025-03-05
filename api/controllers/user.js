@@ -14,22 +14,26 @@ exports.list = async (req, res) => {
 
         const result = await users.findAndCountAll({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 ...req.query.id && { id: { [Op.eq]: req.query.id } },
                 ...req.query.status && { status: { [Op.in]: req.query.status.split(",") } },
-                ...req.query.google_id && { google_id: { [Op.eq]: req.query.google_id } },
+                ...req.query.role && { role: { [Op.in]: req.query.role.split(",") } },
+                ...req.query.is_reset && { is_reset: { [Op.eq]: req.query.is_reset } },
+                ...req.query.verified && { verified: { [Op.eq]: req.query.verified } },
                 ...req.query.email && { email: { [Op.eq]: req.query.email } },
                 ...req.query.search && {
                     [Op.or]: [
                         { name: { [Op.like]: `%${req.query.search}%` } },
                         { email: { [Op.like]: `%${req.query.search}%` } },
+                        { phone: { [Op.like]: `%${req.query.search}%` } },
+                        { code: { [Op.like]: `%${req.query.search}%` } },
                     ]
                 },
             },
             order: [
-                ['createdAt', 'DESC'],
+                ['created_on', 'DESC'],
             ],
-            attributes: { exclude: ['deletedAt', 'password'] },
+            attributes: { exclude: ['deleted', 'password'] },
             ...req.query.pagination == 'true' && {
                 limit: size,
                 offset: offset
@@ -52,18 +56,19 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        ['name', 'email']?.map(value => {
+        const requiredFields = ['name', 'password', 'role'];
+        for (const value of requiredFields) {
             if (!req.body[value]) {
                 return res.status(400).send({
                     status: "error",
                     error_message: "Parameter tidak lengkap " + value,
                     code: 400
-                })
+                });
             }
-        })
+        }
         const existUser = await users.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 email: { [Op.eq]: req.body.email }
             }
         })
@@ -92,7 +97,7 @@ exports.update = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id },
                 email: { [Op.eq]: req.body.email }
             }
@@ -102,11 +107,11 @@ exports.update = async (req, res) => {
         }
         let payload = {
             ...req.body,
-            updatedAt: new Date()
+            updated_on: new Date()
         }
         const onUpdate = await users.update(payload, {
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id }
             }
         })
@@ -122,16 +127,16 @@ exports.delete = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
             }
         })
         if (!result) {
             return res.status(404).send({ message: "Data tidak ditemukan!" })
         }
-        await users.update({ deletedAt: new Date() }, {
+        await users.update({ deleted: 1 }, {
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
             }
         })
@@ -174,7 +179,7 @@ exports.login = async (req, res) => {
                     email: req.body.identity
                 },
             },
-            attributes: { exclude: ['deletedAt', 'password'] },
+            attributes: { exclude: ['deleted', 'password'] },
         })
         return res.status(200).send({ message: "Berhasil Login", user: result2 })
     } catch (error) {
@@ -204,7 +209,7 @@ exports.loginbygoogle = async (req, res) => {
         };
         const existEmail = await users.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 status: { [Op.eq]: 1 },
                 email: { [Op.eq]: email }
             },
@@ -212,7 +217,7 @@ exports.loginbygoogle = async (req, res) => {
         if (existEmail) {
             await users.update({ google_id: uid }, {
                 where: {
-                    deletedAt: { [Op.is]: null },
+                    deleted: { [Op.eq]: 0 },
                     id: { [Op.eq]: existEmail.id }
                 }
             })
@@ -232,7 +237,7 @@ exports.verificationResetPassword = async (req, res) => {
     try {
         const result = await users.findOne({
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id },
                 email: { [Op.eq]: req.body.email },
                 reset_otp: { [Op.eq]: req.body.otp },
@@ -245,7 +250,7 @@ exports.verificationResetPassword = async (req, res) => {
             reset_otp: null
         }, {
             where: {
-                deletedAt: { [Op.is]: null },
+                deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id }
             }
         })

@@ -5,7 +5,7 @@ require('dotenv').config()
 
 exports.middlewareHere = async (req, res, next) => {
     try {
-        if (req.header('bearer-token') !== "asbinewsapi") {
+        if (req.header('bearer-token') !== "donasiquapi") {
             return res.status(401).send({
                 message: "Access Denied!",
                 code: 401
