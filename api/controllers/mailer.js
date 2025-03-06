@@ -56,8 +56,6 @@ exports.sendEmail = async (req, res) => {
         };
         transport.sendMail(payload, function (error, info) {
             if (error) throw Error(error);
-            console.log('email send successfully');
-            console.log(info);
         })
         return res.status(200).send({
             status: "success",
