@@ -11,6 +11,7 @@ module.exports = (app) => {
     app.delete('/users', middlewareHere, cUser.delete);
     app.post('/users/login', middlewareHere, cUser.login);
     app.post('/users/login/goole', middlewareHere, cUser.loginbygoogle);
+    app.post('/users/verification/otp', middlewareHere, cUser.verificationOTP);
 
     app.get('/banners', middlewareHere, cBanner.list);
     app.post('/banners', middlewareHere, cBanner.create);

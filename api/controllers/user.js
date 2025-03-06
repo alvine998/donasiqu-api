@@ -1,6 +1,7 @@
 
 const db = require('../models')
 const users = db.users
+const login_histories = db.login_histories
 const Op = db.Sequelize.Op
 const bcrypt = require('bcryptjs')
 require('dotenv').config()
@@ -185,7 +186,7 @@ exports.login = async (req, res) => {
             where: {
                 deleted: { [Op.eq]: 0 },
                 status: { [Op.eq]: 1 },
-                verified: {[Op.eq]: 1},
+                verified: { [Op.eq]: 1 },
                 [Op.or]: {
                     phone: req.body.identity,
                     email: req.body.identity
@@ -283,6 +284,41 @@ exports.verificationResetPassword = async (req, res) => {
                 id: { [Op.eq]: req.body.id }
             }
         })
+        res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate })
+        return
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: "Gagal mendapatkan data admin", error: error })
+    }
+}
+
+exports.verificationOTP = async (req, res) => {
+    try {
+        const result = await users.findOne({
+            where: {
+                deleted: { [Op.eq]: 0 },
+                id: { [Op.eq]: req.body.id },
+                email: { [Op.eq]: req.body.email },
+                otp: { [Op.eq]: req.body.otp },
+            }
+        })
+        if (!result) {
+            return res.status(400).send({ message: "Kode OTP Salah!" })
+        }
+        if (Date.now() > result.otp_expired) {
+            return res.status(400).send({ message: "Kode OTP Telah Kadaluwarsa!" })
+        }
+        const onUpdate = await users.update({
+            otp: null,
+            otp_expired: null,
+            verified: 1
+        }, {
+            where: {
+                deleted: { [Op.eq]: 0 },
+                id: { [Op.eq]: req.body.id }
+            }
+        })
+        await login_histories.create({ user_id: result.id, user_name: result.name })
         res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate })
         return
     } catch (error) {

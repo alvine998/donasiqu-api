@@ -22,5 +22,6 @@ db.sequelize = sequelize;
 
 db.users = require("./users.js")(sequelize, Sequelize);
 db.banners = require("./banners.js")(sequelize, Sequelize);
+db.login_histories = require("./login_histories.js")(sequelize, Sequelize);
 
 module.exports = db;
