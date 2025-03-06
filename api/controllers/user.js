@@ -311,7 +311,8 @@ exports.verificationOTP = async (req, res) => {
         const onUpdate = await users.update({
             otp: null,
             otp_expired: null,
-            verified: 1
+            verified: 1,
+            updated_on: new Date()
         }, {
             where: {
                 deleted: { [Op.eq]: 0 },
