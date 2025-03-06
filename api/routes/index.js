@@ -3,6 +3,7 @@ const { middlewareHere } = require('../middleware/index.js');
 module.exports = (app) => {
     const cUser = require('../controllers/user.js');
     const cBanner = require('../controllers/banner.js');
+    const cMailer = require('../controllers/mailer.js');
 
     app.get('/users', middlewareHere, cUser.list);
     app.post('/users', middlewareHere, cUser.create);
@@ -15,4 +16,6 @@ module.exports = (app) => {
     app.post('/banners', middlewareHere, cBanner.create);
     app.patch('/banners', middlewareHere, cBanner.update);
     app.delete('/banners', middlewareHere, cBanner.delete);
+
+    app.post('/sendmail', middlewareHere, cMailer.sendEmail);
 }
