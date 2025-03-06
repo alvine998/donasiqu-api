@@ -33,9 +33,11 @@ exports.sendEmail = async (req, res) => {
             })
         }
         const otp = generateRandomSixDigitNumber()
+        const fiveMinutesLater = new Date(Date.now() + 5 * 60 * 1000); // Current time + 5 minutes
+
         await users.update({
-            reset_otp: otp,
-            reset_status: existUser.reset_status + 1
+            otp: otp,
+            otp_expired: fiveMinutesLater
         }, {
             where: {
                 deleted: { [Op.eq]: 0 },
