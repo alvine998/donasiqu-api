@@ -61,6 +61,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(6),
       allowNull: true
     },
+    otp_expired: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
     status: {
       type: DataTypes.TINYINT,
       allowNull: false,

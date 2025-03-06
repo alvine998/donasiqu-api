@@ -4,6 +4,7 @@ const { generateRandomSixDigitNumber } = require('../../utils');
 const users = db.users
 const Op = db.Sequelize.Op
 require('dotenv').config();
+const moment = require("moment");
 
 exports.sendEmail = async (req, res) => {
     try {
@@ -53,8 +54,17 @@ exports.sendEmail = async (req, res) => {
         });
         const payload = {
             ...req.body,
-            subject: "Reset Password",
-            text: `Gunakan Kode OTP ini untuk verifikasi pemulihan password: ${otp}`,
+            from: `"DONASIQU" ${process.env.EMAIL}`,
+            subject: "Login OTP",
+            html: `
+            <div style="padding: 10px;">
+              <img src="https://res.cloudinary.com/dzrthkexn/image/upload/v1741267307/donasiqu/rmx1eouamfm7oh2bllyt.jpg" style="margin-left:auto; margin-right:auto" />
+              <h5 style="font-size: 24px; font-weight: bold; text-align: center; color: black; margin-top:-20px">Kode OTP Login</h5>
+              <p style="color: black;">Jangan memberitahu kode rahasia ini pada siapapun, berikut kode rahasia anda:</p>
+              <h5 style="font-size: 32px; font-weight: bold; text-align: center;"><strong>${otp}</strong></h5>
+              <p>Berlaku sampai dengan ${moment().format("DD-MM-YYYY HH:mm:ss")}, Terima Kasih!</p>
+            </div>
+          `,
         };
         transport.sendMail(payload, function (error, info) {
             if (error) throw Error(error);
