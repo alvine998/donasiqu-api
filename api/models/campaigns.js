@@ -1,89 +1,71 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('users', {
+  return sequelize.define('campaigns', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    code: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    phone: {
-      type: DataTypes.STRING(13),
-      allowNull: true
-    },
-    email: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    pob: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    dob: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING(250),
-      allowNull: false
-    },
-    verified: {
-      type: DataTypes.TINYINT,
-      allowNull: true
-    },
-    is_reset: {
-      type: DataTypes.TINYINT,
-      allowNull: true
-    },
-    verify_token: {
-      type: DataTypes.STRING(250),
-      allowNull: true
-    },
-    role: {
-      type: DataTypes.ENUM('super_admin','admin','foundation','donor'),
+    user_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: "donor"
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     },
-    otp: {
-      type: DataTypes.STRING(6),
-      allowNull: true
+    user_name: {
+      type: DataTypes.STRING(250),
+      allowNull: false
     },
-    otp_expired: {
-      type: DataTypes.DATE,
-      allowNull: true
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
-    balance: {
+    category_name: {
+      type: DataTypes.STRING(250),
+      allowNull: false
+    },
+    title: {
+      type: DataTypes.STRING(250),
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    target: {
       type: DataTypes.DOUBLE,
       allowNull: true,
       defaultValue: 0
     },
-    wallet: {
+    fund: {
       type: DataTypes.DOUBLE,
       allowNull: true,
       defaultValue: 0
     },
-    donation: {
-      type: DataTypes.DOUBLE,
-      allowNull: true,
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    detail_funding: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    images: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+    highlight: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
       defaultValue: 0
     },
     status: {
-      type: DataTypes.TINYINT,
+      type: DataTypes.ENUM('active','nonactive'),
       allowNull: false,
-      defaultValue: 1
-    },
-    agreement: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      defaultValue: 0
+      defaultValue: "active"
     },
     created_on: {
       type: DataTypes.DATE,
@@ -97,12 +79,11 @@ module.exports = function(sequelize, DataTypes) {
     deleted: {
       type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: 0,
-      unique: "deleted"
+      defaultValue: 0
     }
   }, {
     sequelize,
-    tableName: 'users',
+    tableName: 'campaigns',
     timestamps: false,
     indexes: [
       {
@@ -114,8 +95,14 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
+        name: "user_id",
+        using: "BTREE",
+        fields: [
+          { name: "user_id" },
+        ]
+      },
+      {
         name: "deleted",
-        unique: true,
         using: "BTREE",
         fields: [
           { name: "deleted" },

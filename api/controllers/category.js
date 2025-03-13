@@ -1,5 +1,5 @@
 const db = require('../models')
-const banners = db.banners
+const categories = db.categories
 const Op = db.Sequelize.Op
 require('dotenv').config()
 
@@ -10,7 +10,7 @@ exports.list = async (req, res) => {
         const page = +req.query.page || 0;
         const offset = size * page;
 
-        const result = await banners.findAndCountAll({
+        const result = await categories.findAndCountAll({
             where: {
                 deleted: { [Op.eq]: 0 },
                 ...req.query.id && { id: { [Op.eq]: req.query.id } },
@@ -46,7 +46,7 @@ exports.list = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const requiredFields = ['name', 'image'];
+        const requiredFields = ['name'];
         for (const value of requiredFields) {
             if (!req.body[value]) {
                 return res.status(400).send({
@@ -59,7 +59,7 @@ exports.create = async (req, res) => {
         const payload = {
             ...req.body,
         };
-        const result = await banners.create(payload)
+        const result = await categories.create(payload)
         return res.status(200).send({
             status: "success",
             items: result,
@@ -74,7 +74,7 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        const result = await banners.findOne({
+        const result = await categories.findOne({
             where: {
                 deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id },
@@ -88,7 +88,7 @@ exports.update = async (req, res) => {
             ...req.body,
             updated_on: new Date()
         }
-        const onUpdate = await banners.update(payload, {
+        const onUpdate = await categories.update(payload, {
             where: {
                 deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.body.id }
@@ -104,7 +104,7 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        const result = await banners.findOne({
+        const result = await categories.findOne({
             where: {
                 deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
@@ -113,7 +113,7 @@ exports.delete = async (req, res) => {
         if (!result) {
             return res.status(404).send({ message: "Data tidak ditemukan!" })
         }
-        await banners.update({ deleted: 1 }, {
+        await categories.update({ deleted: 1 }, {
             where: {
                 deleted: { [Op.eq]: 0 },
                 id: { [Op.eq]: req.query.id }
